@@ -2,6 +2,7 @@ package com.es.controller;
 
 import com.es.qo.GoodsQueryObject;
 import com.es.qo.PageResult;
+import com.es.qo.QueryObject;
 import com.es.repository.IGoodsRepository;
 import com.es.util.Response;
 import com.es.vo.GoodsVo;
@@ -15,12 +16,19 @@ public class EsGoodsDemoController {
     @Autowired
     IGoodsRepository goodsRepository;
 
-    @GetMapping("/getAllByIndex")
+    @PostMapping("/getAllByIndex")
     @ResponseBody
-    public Response getAllByIndex() throws Exception {
-        List<GoodsVo> list = goodsRepository.getAllByIndex();
+    public Response getAllByIndex(@RequestBody QueryObject qo) throws Exception {
+        if(qo == null){
+            return Response.failure("参数错误", null);
+        }
+        int currentPage = qo.getCurrentPage()== 0 ? 1 : qo.getCurrentPage();
+        int pageSize = qo.getPageSize() == 0 ? 10 : qo.getPageSize();
+        qo.setCurrentPage(currentPage);
+        qo.setPageSize(pageSize);
+        PageResult pageResult = goodsRepository.getAllByIndex(qo);
         Response r = new Response();
-        r.setData(list);
+        r.setData(pageResult);
         return r;
     }
 
@@ -38,23 +46,24 @@ public class EsGoodsDemoController {
 
     @PostMapping("/search")
     @ResponseBody
-    public Response search(@RequestBody GoodsVo vo) throws Exception {
-        if(vo == null || vo.getName() == null || "".equals(vo.getName())){
+    public Response search(@RequestBody QueryObject qo) throws Exception {
+        if(qo == null || qo.getKeyword() == null || "".equals(qo.getKeyword())){
             return Response.failure("参数错误",null);
         }
-        GoodsQueryObject qo = new GoodsQueryObject();
-        qo.setKeyword(vo.getName());
+        int currentPage = qo.getCurrentPage()== 0 ? 1 : qo.getCurrentPage();
+        int pageSize = qo.getPageSize() == 0 ? 10 : qo.getPageSize();
+        qo.setCurrentPage(currentPage);
+        qo.setPageSize(pageSize);
         PageResult pageResult = goodsRepository.search(qo);
         Response r = new Response();
         r.setData(pageResult);
         return r;
     }
 
-    @PostMapping("/save")
+    @PostMapping("/insertOrUpdate")
     @ResponseBody
-    public Response save(@RequestBody GoodsVo vo) {
+    public Response insertOrUpdate(@RequestBody GoodsVo vo) {
         try {
-//            articleRepository.insertOrUpdate(vo, vo.getIndex(), vo.getType());
             goodsRepository.insertOrUpdate(vo);
         } catch (Exception e) {
             e.printStackTrace();

@@ -139,15 +139,18 @@ public class BaseRepositoryImpl<T> implements IBaseRepository<T> {
      * @throws Exception
      */
     @Override
-    public List<T> getAllByIndex() throws Exception {
+    public PageResult getAllByIndex(QueryObject qo) throws Exception {
         SearchRequest request = new SearchRequest();
         request.indices(baseIndex);
         request.types(baseType);
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.matchAllQuery());
+        SearchSourceBuilder sourceBuilder = qo.createSearchSourceBuilder();
+//        sourceBuilder.query(QueryBuilders.matchAllQuery());
+        HighlightBuilder highlightBuilder = qo.createHighlightBuilder();
+        sourceBuilder.highlighter(highlightBuilder);
         request.source(sourceBuilder);
         SearchResponse response = client.search(request, RequestOptions.DEFAULT);
         SearchHits searchHits = response.getHits();
+        long total = searchHits.getTotalHits();
         SearchHit[] searchHitArray = searchHits.getHits();
         List<T> data = new ArrayList<>();
         for(SearchHit hit : searchHitArray){
@@ -155,7 +158,7 @@ public class BaseRepositoryImpl<T> implements IBaseRepository<T> {
             T t = BeanUtil.map2Bean(source, clazz);
             data.add(t);
         }
-        return data;
+        return new PageResult(data,Integer.parseInt(total+""),qo.getCurrentPage(),qo.getPageSize());
     }
 
     /**

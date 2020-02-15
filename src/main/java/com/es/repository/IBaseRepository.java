@@ -42,7 +42,7 @@ public interface IBaseRepository<T> {
      * @return
      * @throws Exception
      */
-    List<T> getAllByIndex() throws Exception;
+    PageResult getAllByIndex(QueryObject qo) throws Exception;
 
     /**
      * 搜索
