@@ -69,7 +69,7 @@ public class EsGoodsDemoController {
             e.printStackTrace();
             return Response.failure("新增失败", vo.getId());
         }
-        return Response.success(null);
+        return Response.success("新增成功");
     }
 
     @PostMapping("/deleteById")

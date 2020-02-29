@@ -71,7 +71,6 @@ public class BaseRepositoryImpl<T> implements IBaseRepository<T> {
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -114,7 +113,7 @@ public class BaseRepositoryImpl<T> implements IBaseRepository<T> {
      */
     @Override
     public void delete(String id) throws Exception {
-        DeleteRequest request = new DeleteRequest(baseIndex, baseType, id + "");
+        DeleteRequest request = new DeleteRequest(baseIndex, baseType, id);
         client.delete(request, RequestOptions.DEFAULT);
     }
 
@@ -143,8 +142,10 @@ public class BaseRepositoryImpl<T> implements IBaseRepository<T> {
         SearchRequest request = new SearchRequest();
         request.indices(baseIndex);
         request.types(baseType);
+        // 创建SearchSourceBuilder，设置通用参数,如分页信息等
         SearchSourceBuilder sourceBuilder = qo.createSearchSourceBuilder();
 //        sourceBuilder.query(QueryBuilders.matchAllQuery());
+//        创建HighlightBuilder对象，并设置一些通用的属性
         HighlightBuilder highlightBuilder = qo.createHighlightBuilder();
         sourceBuilder.highlighter(highlightBuilder);
         request.source(sourceBuilder);
@@ -172,6 +173,7 @@ public class BaseRepositoryImpl<T> implements IBaseRepository<T> {
         SearchRequest request = new SearchRequest();
         request.indices(baseIndex);
         request.types(baseType);
+        // 创建SearchSourceBuilder，设置通用参数,如分页信息等
         SearchSourceBuilder sourceBuilder = qo.createSearchSourceBuilder();
         HighlightBuilder highlightBuilder = qo.createHighlightBuilder();
         sourceBuilder.highlighter(highlightBuilder);
@@ -188,7 +190,6 @@ public class BaseRepositoryImpl<T> implements IBaseRepository<T> {
             data.add(t);
         }
         return new PageResult(data,Integer.parseInt(total+""),qo.getCurrentPage(),qo.getPageSize());
-
     }
 }
 

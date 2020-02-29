@@ -1,6 +1,8 @@
 package com.es.config;
 
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -34,11 +36,25 @@ public class ElasticsearchRestClient {
      * 初始化 @Bean(destroyMethod = “close”) 及时关闭资源非常重要
      * @return
      */
-    @Bean(destroyMethod = "close")
+//    @Bean(destroyMethod = "close")
+
+    /**
+     * 初始化
+     * @return
+     */
+    @Bean
     public RestHighLevelClient client() {
+
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost("192.168.1.13", 9200, "http")));
+                        // 如果有多个从节点可以持续在内部new多个HttpHost，参数1是ip,参数2是HTTP端口，参数3是通信协议
+                        new HttpHost("192.168.58.103", 9200, "http"),
+                        new HttpHost("192.168.58.104", 9200, "http"),
+                        new HttpHost("192.168.58.105", 9200, "http"))
+
+                // .setXXX()... 可以根据需要添加其他配置
+        );
+        //初始化完成
         return client;
     }
 
